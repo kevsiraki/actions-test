@@ -1,0 +1,29 @@
+# .gitignore
+
+# Ignore Composer packages
+/vendor/
+
+# Ignore PHPUnit files
+/phpunit.xml
+/phpunit.xml.dist
+
+# Ignore Dotenv files
+.env
+
+# Ignore any log files
+*.log
+
+# Ignore local configuration files
+/.idea/
+/.vscode/
+
+# Ignore any database files
+/*.sqlite
+
+# Ignore files generated during development or build
+/build/
+/public/assets/
+
+# Ignore OS and IDE-specific files
+.DS_Store
+Thumbs.db
