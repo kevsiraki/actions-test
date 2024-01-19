@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class LoremDataTest extends TestCase
+class LampStackAppTest extends TestCase
 {
     private static $conn;
 
