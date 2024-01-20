@@ -52,5 +52,5 @@ jobs:
           fi
 
           curl -X POST -H "Content-Type: application/json" \
-          -d "{\"content\": \"PHPUnit Tests on $BRANCH branch completed successfully!\n\nCommit: $COMMIT_SHA\n"}" \
+          -d "{\"content\": \"PHPUnit Tests on $BRANCH branch completed successfully!\n\nCommit: $COMMIT_SHA\n\"}" \
           $WEBHOOK_URL
