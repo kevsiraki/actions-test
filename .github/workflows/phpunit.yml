@@ -4,22 +4,37 @@ on:
   push:
     branches:
       - main
+  pull_request:
+  workflow_run:
+    workflows: ["PHPUnit Tests"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
 
-    - name: Install dependencies
-      run: composer install
+      - name: Install dependencies
+        run: composer install
 
-    - name: Run PHPUnit tests
-      run: vendor/bin/phpunit tests/
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit tests/
+
+notify_discord:
+  needs: test
+  runs-on: ubuntu-latest
+  steps:
+    - name: Notify Discord
+      env:
+        WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      run: |
+        curl -X POST -H "Content-Type: application/json" \
+        -d '{"content": "PHPUnit Tests on Main branch completed successfully!"}' \
+        $WEBHOOK_URL
