@@ -29,18 +29,18 @@ jobs:
       - name: Run PHPUnit tests
         run: vendor/bin/phpunit tests/
 
- notify_discord:
-  needs: test
-  runs-on: ubuntu-latest
-  steps:
-    - name: Notify Discord
-      env:
-        WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-        COMMIT_SHA: ${{ github.sha }}
-        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        COMMITTER: ${{ github.event.head_commit.committer.name }}
-        AUTHOR: ${{ github.event.head_commit.author.name }}
-      run: |
-        curl -X POST -H "Content-Type: application/json" \
-        -d "{\"content\": \"PHPUnit Tests on Main branch completed successfully!\n\nCommit: $COMMIT_SHA\nMessage: $COMMIT_MESSAGE\nCommitter: $COMMITTER\nAuthor: $AUTHOR\"}" \
-        $WEBHOOK_URL
+  notify_discord:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMITTER: ${{ github.event.head_commit.committer.name }}
+          AUTHOR: ${{ github.event.head_commit.author.name }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"content\": \"PHPUnit Tests on Main branch completed successfully!\n\nCommit: $COMMIT_SHA\nMessage: $COMMIT_MESSAGE\nCommitter: $COMMITTER\nAuthor: $AUTHOR\"}" \
+          $WEBHOOK_URL
