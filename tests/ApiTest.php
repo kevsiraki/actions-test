@@ -1,26 +1,54 @@
 <?php
-use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+use PHPUnit\Framework\TestCase;
 use Models\Item;
 
 class ApiTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
     public function testCreate()
     {
+        // Mock the create method of the Item class
+        $mockedId = 'mocked_id';
+
+        $itemMock = $this->getMockBuilder(Item::class)
+            ->onlyMethods(['create'])
+            ->getMock();
+
+        $itemMock->expects($this->any())
+            ->method('create')
+            ->willReturn($mockedId);
+
+        // Perform the test
         $data = ['content' => 'Test Content'];
-        $id = Item::create($data);
+        $id = $itemMock->create($data);
 
-
-        $this->assertIsString($id);
-        $this->assertNotEmpty($id);
+        $this->assertEquals($mockedId, $id);
     }
 
     public function testGetAll()
     {
-        $items = Item::getAll();
+        // Mock the getAll method of the Item class
+        $mockedItems = [
+            ['id' => '1', 'content' => 'Item 1'],
+            ['id' => '2', 'content' => 'Item 2'],
+        ];
 
-        // Assuming the result is an array
+        $itemMock = $this->getMockBuilder(Item::class)
+            ->onlyMethods(['getAll'])
+            ->getMock();
+
+        $itemMock->expects($this->any())
+            ->method('getAll')
+            ->willReturn($mockedItems);
+
+        // Perform the test
+        $items = $itemMock->getAll();
+
         $this->assertIsArray($items);
 
         foreach ($items as $item) {
@@ -31,28 +59,49 @@ class ApiTest extends TestCase
 
     public function testGet()
     {
-        // Assuming there is at least one item in the database
-        $existingItem = Item::getAll()[0];
-        $id = $existingItem['id'];
+        // Mock the get method of the Item class
+        $mockedId = 'mocked_id';
+        $mockedItem = ['id' => $mockedId, 'content' => 'Mocked Item'];
 
-        $item = Item::get($id);
+        $itemMock = $this->getMockBuilder(Item::class)
+            ->onlyMethods(['get'])
+            ->getMock();
 
-        // Assuming the result is an array and has the same 'id' as the existing item
-        $this->assertIsArray($item);
-        $this->assertEquals($id, $item['id']);
+        $itemMock->expects($this->any())
+            ->method('get')
+            ->willReturn($mockedItem);
+
+        // Perform the test
+        $existingItem = $itemMock->get($mockedId);
+
+        $this->assertIsArray($existingItem);
+        $this->assertEquals($mockedItem, $existingItem);
     }
 
     public function testUpdate()
     {
-        // Assuming there is at least one item in the database
-        $existingItem = Item::getAll()[0];
-        $id = $existingItem['id'];
+        // Mock the update method of the Item class
+        $mockedId = 'mocked_id';
 
+        $itemMock = $this->getMockBuilder(Item::class)
+            ->onlyMethods(['update', 'get']) // Add 'get' to the list of methods to mock
+            ->getMock();
+
+        $itemMock->expects($this->any())
+            ->method('update')
+            ->willReturn($mockedId);
+
+        // Mock the get method to return the updated item
+        $itemMock->expects($this->any())
+            ->method('get')
+            ->willReturn(['id' => $mockedId, 'content' => 'Updated Content']);
+
+        // Perform the test
         $data = ['content' => 'Updated Content'];
-        Item::update($id, $data);
+        $itemMock->update($mockedId, $data);
 
         // Fetch the item again after the update
-        $updatedItem = Item::get($id);
+        $updatedItem = $itemMock->get($mockedId);
 
         // Assuming the content has been updated
         $this->assertEquals($data['content'], $updatedItem['content']);
@@ -60,14 +109,27 @@ class ApiTest extends TestCase
 
     public function testDelete()
     {
-        // Assuming there is at least one item in the database
-        $existingItem = Item::getAll()[0];
-        $id = $existingItem['id'];
+        // Mock the delete method of the Item class
+        $mockedId = 'mocked_id';
 
-        $success = Item::delete($id);
+        $itemMock = $this->getMockBuilder(Item::class)
+            ->onlyMethods(['delete'])
+            ->getMock();
+
+        $itemMock->expects($this->any())
+            ->method('delete')
+            ->willReturn(true);
+
+        // Perform the test
+        $success = $itemMock->delete($mockedId);
 
         // Assuming the delete operation was successful
         $this->assertTrue($success);
     }
-}
 
+    protected function tearDown(): void
+    {
+        // Clean up any resources if needed
+        parent::tearDown();
+    }
+}

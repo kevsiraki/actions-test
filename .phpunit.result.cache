@@ -1,1 +1,1 @@
-{"version":1,"defects":[],"times":{"ApiTest::testCreate":0.012,"ApiTest::testGetAll":0.001,"ApiTest::testGet":0.001,"ApiTest::testUpdate":0.002,"ApiTest::testDelete":0.003,"LampStackAppTest::testDisplayLoremData":0.004}}
+{"version":1,"defects":{"ApiTest::testCreate":4,"ApiTest::testGetAll":4,"ApiTest::testGet":4,"ApiTest::testUpdate":4,"ApiTest::testDelete":4},"times":{"ApiTest::testCreate":0.012,"ApiTest::testGetAll":0.001,"ApiTest::testGet":0,"ApiTest::testUpdate":0,"ApiTest::testDelete":0,"LampStackAppTest::testDisplayLoremData":0.001}}
