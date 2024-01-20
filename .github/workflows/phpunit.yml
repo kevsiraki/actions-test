@@ -44,6 +44,13 @@ jobs:
           AUTHOR: ${{ github.event.head_commit.author.name }}
           BRANCH: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.event.ref }}
         run: |
+          if [ "$BRANCH" == "refs/pull/${{ github.event.pull_request.number }}/merge" ]; then
+            COMMIT_SHA=$(git log --format=%H -n 1 ${{ github.event.before }})
+            COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.before }})
+            COMMITTER=$(git log --format=%an -n 1 ${{ github.event.before }})
+            AUTHOR=$(git log --format=%ae -n 1 ${{ github.event.before }})
+          fi
+
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"content\": \"PHPUnit Tests on $BRANCH branch completed successfully!\n\nCommit: $COMMIT_SHA\nMessage: $COMMIT_MESSAGE\nCommitter: $COMMITTER\nAuthor: $AUTHOR\"}" \
           $WEBHOOK_URL
