@@ -3,7 +3,7 @@ name: CI/CD with PHPUnit
 on:
   push:
     branches:
-      - dev
+      - development
   pull_request:
     branches:
       - main
