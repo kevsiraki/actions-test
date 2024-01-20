@@ -32,8 +32,5 @@ class LampStackAppTest extends TestCase
         // Assert that the output contains the HTML structure
         $this->assertStringContainsString('<h1>Lorem Ipsum Data</h1>', $output);
         $this->assertStringContainsString('<p>', $output);
-
-        // You can add more specific assertions based on your actual data or use case
     }
 }
-?>
