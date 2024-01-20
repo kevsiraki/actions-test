@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__ . '/../vendor/autoload.php';
 use Models\Item;
 
-class ItemTest extends TestCase
+class ApiTest extends TestCase
 {
     public function testCreate()
     {
