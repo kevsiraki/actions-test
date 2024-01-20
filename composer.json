@@ -3,6 +3,7 @@
         "psr-4": {
             "Controllers\\": "controllers/",
             "Models\\": "models/",
+            "Routing\\": "routes/",
             "Db\\": "db/"
         }
     },

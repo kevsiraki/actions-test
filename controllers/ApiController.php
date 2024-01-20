@@ -1,100 +1,144 @@
 <?php
+
+// ApiController.php
+
 namespace Controllers;
-require_once __DIR__ . '/../vendor/autoload.php';
+
+use Routing\Router;
 use Models\Item;
+
 class ApiController
 {
+    /** @var Router */
+    private $router;
+
+    /** @var Item */
+    private $itemModel;
+
+    /**
+     * ApiController constructor.
+     *
+     * @param Router $router
+     * @param Item $itemModel
+     */
+    public function __construct(Router $router, Item $itemModel)
+    {
+        $this->router = $router;
+        $this->itemModel = $itemModel;
+    }
+
+    /**
+     * Handle incoming requests based on the specified method and parameters.
+     *
+     * @param string $method
+     * @param mixed $params
+     */
     public function handleRequest($method, $params)
     {
-        switch ($method) {
-            case 'GET':
-                if ($params === 'items') {
-                    $this->getAllItems();
-                } elseif (preg_match('/items\/(\d+)/', $params, $matches)) {
-                    $this->getItem($matches[1]);
-                } else {
-                    $this->defaultResponse();
-                }
-                break;
+        // Find the appropriate handler for the given method and parameters
+        $handler = $this->router->findHandler($method, $params);
 
-            case 'POST':
-                if ($params === 'items') {
-                    $jsonPayload = file_get_contents('php://input');
-                    $data = json_decode($jsonPayload, true);
-
-                    if (json_last_error() === JSON_ERROR_NONE) {
-                        $this->createItem($data);
-                    } else {
-                        $this->defaultResponse();
-                    }
-                } else {
-                    $this->defaultResponse();
-                }
-                break;
-
-
-            case 'PUT':
-                if (preg_match('/items\/(\d+)/', $params, $matches)) {
-                    $jsonPayload = file_get_contents('php://input');
-                    $data = json_decode($jsonPayload, true);
-
-                    if (json_last_error() === JSON_ERROR_NONE) {
-                        $this->updateItem($matches[1], $data);
-                    } else {
-                        $this->defaultResponse();
-                    }
-                } else {
-                    $this->defaultResponse();
-                }
-                break;
-
-            case 'DELETE':
-                if (preg_match('/items\/(\d+)/', $params, $matches)) {
-                    $this->deleteItem($matches[1]);
-                } else {
-                    $this->defaultResponse();
-                }
-                break;
-
-
-            default:
-                $this->defaultResponse();
-                break;
+        // If a valid handler is found, execute it; otherwise, provide a default response
+        if ($handler !== null) {
+            $this->$handler($params);
+        } else {
+            $this->defaultResponse();
         }
     }
 
+    /**
+     * Retrieve all items and respond with a JSON-encoded representation.
+     */
     public function getAllItems()
     {
-        $items = Item::getAll();
+        $items = $this->itemModel->getAll();
         echo json_encode($items);
     }
 
-    public function getItem($id)
+    /**
+     * Retrieve a specific item by ID and respond with a JSON-encoded representation.
+     *
+     * @param mixed $params
+     */
+    public function getItem($params)
     {
-        $item = Item::get($id);
-        echo json_encode($item);
+        // Extract the ID from the URL parameters
+        $parts = explode('/', $params);
+        $id = end($parts);
+        $id = is_numeric($id) ? (int) $id : null;
+
+        // If a valid ID is found, retrieve the item and respond with JSON; otherwise, provide a default response
+        if ($id !== null) {
+            $item = $this->itemModel->get($id);
+            echo json_encode($item);
+        } else {
+            $this->defaultResponse();
+        }
     }
 
-    public function createItem($data)
+    /**
+     * Create a new item based on the JSON payload received in the request.
+     */
+    public function createItem()
     {
-        $id = Item::create($data);
+        // Retrieve JSON payload from the request
+        $jsonPayload = file_get_contents('php://input');
+        $data = json_decode($jsonPayload, true);
+
+        // If JSON decoding fails, respond with a Bad Request error
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['error' => 'Invalid JSON data']);
+            return;
+        }
+
+        // Create a new item and respond with the generated ID
+        $id = $this->itemModel->create($data);
         echo json_encode(['id' => $id]);
     }
 
-    public function updateItem($id, $data)
+    /**
+     * Update an existing item with the provided data and respond with a success message.
+     *
+     * @param mixed $params
+     */
+    public function updateItem($params)
     {
-        Item::update($id, $data);
+        // Extract the ID from the URL parameters
+        $parts = explode('/', $params);
+        $id = end($parts);
+        $id = is_numeric($id) ? (int) $id : null;
+
+        // Retrieve JSON payload from the request
+        $jsonPayload = file_get_contents('php://input');
+        $data = json_decode($jsonPayload, true);
+
+        // If JSON decoding fails, respond with a Bad Request error
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['error' => 'Invalid JSON data']);
+            return;
+        }
+
+        // Update the item and respond with a success message
+        $this->itemModel->update($id, $data);
         echo json_encode(['message' => 'Item updated successfully']);
     }
 
-    public function defaultResponse()
+    /**
+     * Delete an item based on the provided ID and respond with success or failure messages.
+     *
+     * @param mixed $params
+     */
+    public function deleteItem($params)
     {
-        echo json_encode(['message' => 'Invalid endpoint']);
-    }
+        // Extract the ID from the URL parameters
+        $parts = explode('/', $params);
+        $id = end($parts);
+        $id = is_numeric($id) ? (int) $id : null;
 
-    public function deleteItem($id)
-    {
-        $success = Item::delete($id);
+        // Attempt to delete the item and respond accordingly
+        $success = $this->itemModel->delete($id);
 
         if ($success) {
             echo json_encode(['message' => 'Item deleted successfully']);
@@ -103,22 +147,11 @@ class ApiController
         }
     }
 
+    /**
+     * Respond with a JSON-encoded message indicating an invalid endpoint.
+     */
+    public function defaultResponse()
+    {
+        echo json_encode(['message' => 'Invalid endpoint']);
+    }
 }
-
-// Get request method and URI
-$requestMethod = $_SERVER['REQUEST_METHOD'];
-$requestUri = $_SERVER['REQUEST_URI'];
-
-// Get the path without query parameters
-$path = parse_url($requestUri, PHP_URL_PATH);
-$parts = explode('/', trim($path, '/'));
-
-// Keep only the first two parts
-$filteredParts = array_slice($parts, 4, 5);
-
-// Reconstruct the path
-$filteredPath = implode('/', $filteredParts);
-
-// Instantiate the ApiController and handle the request
-$apiController = new ApiController();
-$apiController->handleRequest($requestMethod, $filteredPath);
