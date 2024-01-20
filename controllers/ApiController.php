@@ -2,8 +2,6 @@
 namespace Controllers;
 require_once __DIR__ . '/../vendor/autoload.php';
 use Models\Item;
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 class ApiController
 {
     public function handleRequest($method, $params)
