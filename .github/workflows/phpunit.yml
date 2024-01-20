@@ -27,7 +27,7 @@ jobs:
         run: composer install
 
       - name: Run PHPUnit tests
-        run: vendor/bin/phpunit tests/
+        run: vendor/bin/phpunit --configuration phpunit.xml tests/
 
   notify_discord:
     needs: test
