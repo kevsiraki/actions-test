@@ -4,7 +4,6 @@
 /vendor/
 
 # Ignore PHPUnit files
-/phpunit.xml
 /phpunit.xml.dist
 
 # Ignore Dotenv files
